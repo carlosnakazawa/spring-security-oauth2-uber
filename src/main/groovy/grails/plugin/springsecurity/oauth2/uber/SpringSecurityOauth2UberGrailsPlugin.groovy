@@ -88,7 +88,7 @@ Brief summary/description of the plugin.
         def SpringSecurityOauth2BaseService oAuth2BaseService = grailsApplication.mainContext.getBean('springSecurityOauth2BaseService') as SpringSecurityOauth2BaseService
         def UberOAuth2ProviderService uberOAuth2ProviderService = grailsApplication.mainContext.getBean('uberOAuth2ProviderService') as UberOAuth2ProviderService
         try {
-            oAuth2BaseService.registerProvider(uberOAuth2Service)
+            oAuth2BaseService.registerProvider(uberOAuth2ProviderService)
         } catch (OAuth2Exception exception) {
             log.error("There was an oAuth2Exception", exception)
             log.error("OAuth2 Google not loaded")

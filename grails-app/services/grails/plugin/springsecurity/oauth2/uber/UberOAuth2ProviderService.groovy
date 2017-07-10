@@ -31,7 +31,7 @@ class UberOAuth2ProviderService extends OAuth2AbstractProviderService {
 
     @Override
     String getScopes() {
-        return ""
+        return "history profile places"
     }
 
     @Override

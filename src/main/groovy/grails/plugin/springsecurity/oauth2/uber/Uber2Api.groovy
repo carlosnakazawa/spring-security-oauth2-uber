@@ -4,7 +4,7 @@ import com.github.scribejava.core.builder.api.DefaultApi20
 
 class Uber2Api extends DefaultApi20 {
 
-    private static final String AUTHORIZATION_BASE_URL = "https://www.linkedin.com/oauth/v2/authorization"
+    private static final String AUTHORIZATION_BASE_URL = "https://login.uber.com/oauth/v2/authorize"
 
     protected Uber2Api() {
     }
@@ -20,7 +20,7 @@ class Uber2Api extends DefaultApi20 {
 
     @Override
     String getAccessTokenEndpoint() {
-        return "https://www.linkedin.com/oauth/v2/accessToken";
+        return "https://login.uber.com/oauth/v2/token";
     }
 
     @Override
