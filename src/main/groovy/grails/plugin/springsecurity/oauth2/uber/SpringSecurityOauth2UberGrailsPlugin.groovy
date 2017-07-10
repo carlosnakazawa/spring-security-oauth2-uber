@@ -1,6 +1,11 @@
-package spring.security.oauth2.uber
+package grails.plugin.springsecurity.oauth2.uber
 
+import grails.plugin.springsecurity.ReflectionUtils
+import grails.plugin.springsecurity.SpringSecurityUtils
+import grails.plugin.springsecurity.oauth2.SpringSecurityOauth2BaseService
+import grails.plugin.springsecurity.oauth2.exception.OAuth2Exception
 import grails.plugins.*
+import org.slf4j.LoggerFactory
 
 class SpringSecurityOauth2UberGrailsPlugin extends Plugin {
 
@@ -40,8 +45,37 @@ Brief summary/description of the plugin.
     // Online location of the plugin's browseable source code.
 //    def scm = [ url: "http://svn.codehaus.org/grails-plugins/" ]
 
+    def log
+
     Closure doWithSpring() { {->
-            // TODO Implement runtime spring config (optional)
+        ReflectionUtils.application = grailsApplication
+        if (grailsApplication.warDeployed) {
+            SpringSecurityUtils.resetSecurityConfig()
+        }
+        SpringSecurityUtils.application = grailsApplication
+
+        // Check if there is an SpringSecurity configuration
+        def coreConf = SpringSecurityUtils.securityConfig
+        boolean printStatusMessages = (coreConf.printStatusMessages instanceof Boolean) ? coreConf.printStatusMessages : true
+        if (!coreConf || !coreConf.active) {
+            if (printStatusMessages) {
+                println("ERROR: There is no SpringSecurity configuration or SpringSecurity is disabled")
+                println("ERROR: Stopping configuration of SpringSecurity Oauth2")
+            }
+            return
+        }
+
+        if (!hasProperty('log')) {
+            log = LoggerFactory.getLogger(SpringSecurityOauth2UberGrailsPlugin)
+        }
+
+        if (printStatusMessages) {
+            println("Configuring Spring Security OAuth2 uber plugin...")
+        }
+        SpringSecurityUtils.loadSecondaryConfig('DefaultOAuth2UberConfig')
+        if (printStatusMessages) {
+            println("... finished configuring Spring Security Uber\n")
+        }
         }
     }
 
@@ -50,7 +84,15 @@ Brief summary/description of the plugin.
     }
 
     void doWithApplicationContext() {
-        // TODO Implement post initialization spring config (optional)
+        log.trace("doWithApplicationContext")
+        def SpringSecurityOauth2BaseService oAuth2BaseService = grailsApplication.mainContext.getBean('springSecurityOauth2BaseService') as SpringSecurityOauth2BaseService
+        def UberOAuth2ProviderService uberOAuth2ProviderService = grailsApplication.mainContext.getBean('uberOAuth2ProviderService') as UberOAuth2ProviderService
+        try {
+            oAuth2BaseService.registerProvider(uberOAuth2Service)
+        } catch (OAuth2Exception exception) {
+            log.error("There was an oAuth2Exception", exception)
+            log.error("OAuth2 Google not loaded")
+        }
     }
 
     void onChange(Map<String, Object> event) {
